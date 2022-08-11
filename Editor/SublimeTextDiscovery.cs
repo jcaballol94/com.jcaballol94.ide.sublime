@@ -63,5 +63,10 @@ namespace jCaballol94.IDE.Sublime
         {
             return new CodeEditor.Installation { Name = "Sublime Text", Path = path };
         }
+
+        public static bool IsValidPath(string path)
+        {
+            return path.EndsWith(Path.Combine(SUBLIME_FOLDER, SUBLIME_APP)) && File.Exists(path);
+        }
     }
 }
