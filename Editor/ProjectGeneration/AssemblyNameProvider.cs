@@ -103,6 +103,12 @@ namespace jCaballol94.IDE.Sublime
             {
                 return false;
             }
+            
+            return IsInternalizedPackage(packageInfo);
+        }
+
+        public bool IsInternalizedPackage(UnityEditor.PackageManager.PackageInfo packageInfo)
+        {
             var packageSource = packageInfo.source;
             switch (packageSource)
             {

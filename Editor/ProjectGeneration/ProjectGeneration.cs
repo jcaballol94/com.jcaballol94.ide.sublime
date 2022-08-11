@@ -120,6 +120,7 @@ namespace jCaballol94.IDE.Sublime
             var assemblies = m_AssemblyNameProvider.GetAssemblies(ShouldFileBePartOfSolution);
             var allProjectAssemblies = RelevantAssembliesForMode(assemblies).ToList();
             SyncSolution(allProjectAssemblies);
+            SyncSublime();
 
             var allAssetProjectParts = GenerateAllAssetProjectParts();
 
@@ -277,6 +278,7 @@ namespace jCaballol94.IDE.Sublime
             var allAssetProjectParts = GenerateAllAssetProjectParts();
 
             SyncSolution(assemblies);
+            SyncSublime();
             var allProjectAssemblies = RelevantAssembliesForMode(assemblies).ToList();
             foreach (Assembly assembly in allProjectAssemblies)
             {
@@ -468,6 +470,11 @@ namespace jCaballol94.IDE.Sublime
             return Path.Combine(ProjectDirectory, $"{m_ProjectName}.sln");
         }
 
+        public string SublimeFile()
+        {
+            return Path.Combine(ProjectDirectory, $"{m_ProjectName}.sublime-project");
+        }
+
         private void ProjectHeader(
             Assembly assembly,
             List<ResponseFileData> responseFilesData,
@@ -651,6 +658,43 @@ namespace jCaballol94.IDE.Sublime
         void SyncSolution(IEnumerable<Assembly> assemblies)
         {
             SyncSolutionFileIfNotChanged(SolutionFile(), SolutionText(assemblies));
+        }
+
+        void SyncSublime()
+        {
+            var packages = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p => !AssemblyNameProvider.IsInternalizedPackage(p));
+            SyncFileIfNotChanged(SublimeFile(), SublimeText(packages));
+        }
+
+        string SublimeText(IEnumerable<UnityEditor.PackageManager.PackageInfo> packages)
+        {
+            return string.Format(GetSublimeText(), GetFolderEntries(packages), m_ProjectName);
+        }
+
+        static string GetSublimeText()
+        {
+            return string.Join("\r\n", 
+                @"{{", 
+                @"    ""folders"":", 
+                @"    [",
+                @"        {{ ""path"": ""Assets"", ""file_exclude_patterns"": [""*.meta""] }},",
+                @"        {{ ""path"": ""Packages"", ""name"": ""Package Manifest"", ""file_exclude_patterns"": [""packages-lock.json""], ""folder_exclude_patterns"": [""*""] }},",
+                @"{0}",
+                @"    ],",
+                @"    ""solution_file"": ""./{1}.sln""",
+                @"}}").Replace("    ", "\t");
+        }
+
+        string GetFolderEntries(IEnumerable<UnityEditor.PackageManager.PackageInfo> packages)
+        {
+            var folderEntries = packages.Select(i => string.Format(
+                "        {{ \"path\": \"{0}\", \"name\": \"{1}\", \"file_exclude_patterns\": [\"*.meta\"] }}",
+                i.resolvedPath,
+                i.displayName
+            ));
+
+            return string.Join("," + k_WindowsNewline,
+                folderEntries).Replace("\\", "/");
         }
 
         string SolutionText(IEnumerable<Assembly> assemblies)
