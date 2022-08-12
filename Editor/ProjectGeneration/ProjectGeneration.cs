@@ -72,6 +72,7 @@ namespace jCaballol94.IDE.Sublime
 
         public AssemblyNameProvider AssemblyNameProvider => m_AssemblyNameProvider;
 
+        public string Projectname => m_ProjectName;
         readonly string m_ProjectName;
         readonly AssemblyNameProvider m_AssemblyNameProvider;
 
@@ -106,7 +107,7 @@ namespace jCaballol94.IDE.Sublime
         /// <param name="reimportedFiles">
         /// A set of files that got reimported
         /// </param>
-        public bool SyncIfNeeded(List<string> affectedFiles, string[] reimportedFiles)
+        public bool SyncIfNeeded(string[] affectedFiles, string[] reimportedFiles)
         {
             Profiler.BeginSample("SolutionSynchronizerSync");
             SetupProjectSupportedExtensions();
@@ -140,7 +141,7 @@ namespace jCaballol94.IDE.Sublime
             return true;
         }
 
-        bool HasFilesBeenModified(List<string> affectedFiles, string[] reimportedFiles)
+        bool HasFilesBeenModified(string[] affectedFiles, string[] reimportedFiles)
         {
             return affectedFiles.Any(ShouldFileBePartOfSolution) || reimportedFiles.Any(ShouldSyncOnReimportedAsset);
         }

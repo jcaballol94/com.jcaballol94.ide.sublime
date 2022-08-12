@@ -2,12 +2,15 @@ using Unity.CodeEditor;
 using System.Threading;
 using UnityEditor;
 using UnityEngine;
+using System.Linq;
+using System.Diagnostics;
 
 namespace jCaballol94.IDE.Sublime
 {
     [InitializeOnLoad]
     public class SublimeTextEditor : IExternalCodeEditor
     {
+        private string m_installationPath;
         public CodeEditor.Installation[] Installations => Discovery.GetSublimeTextInstallations();
 
         private readonly ProjectGeneration _generator = new ProjectGeneration();
@@ -19,6 +22,7 @@ namespace jCaballol94.IDE.Sublime
 
         public void Initialize(string editorInstallationPath)
         {
+            m_installationPath = editorInstallationPath;
         }
 
         public void OnGUI()
@@ -73,16 +77,28 @@ namespace jCaballol94.IDE.Sublime
 
         public bool OpenProject(string filePath = "", int line = -1, int column = -1)
         {
+            var process = new Process
+            {
+                StartInfo = new ProcessStartInfo
+                {
+                    FileName = m_installationPath,
+                    Arguments = $"--project {_generator.Projectname}.sublime-project {filePath}:{line}:{column}",
+                }
+            };
+            process.Start();
+
             return true;
         }
 
         public void SyncAll()
         {
+            AssetDatabase.Refresh();
+            _generator.Sync();
         }
 
         public void SyncIfNeeded(string[] addedFiles, string[] deletedFiles, string[] movedFiles, string[] movedFromFiles, string[] importedFiles)
         {
-            
+            _generator.SyncIfNeeded(addedFiles.Union(deletedFiles).Union(movedFiles).Union(movedFromFiles).ToArray(), importedFiles);
         }
 
         public bool TryGetInstallationForPath(string editorPath, out CodeEditor.Installation installation)
