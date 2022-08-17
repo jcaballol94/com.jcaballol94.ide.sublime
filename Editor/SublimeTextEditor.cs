@@ -1,5 +1,4 @@
 using Unity.CodeEditor;
-using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using System.Linq;
