@@ -81,12 +81,18 @@ namespace jCaballol94.IDE.Sublime
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = m_installationPath,
-                    Arguments = $"--project {_generator.Projectname}.sublime-project {filePath}:{line}:{column}",
+                    Arguments = $"--project {GetOrGenerateSolutionFile()} {filePath}:{line}:{column}",
                 }
             };
             process.Start();
 
             return true;
+        }
+
+        private string GetOrGenerateSolutionFile()
+        {
+            _generator.Sync();
+            return _generator.Projectname + ".sublime-project";
         }
 
         public void SyncAll()
