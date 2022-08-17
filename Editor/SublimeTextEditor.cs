@@ -49,7 +49,7 @@ namespace jCaballol94.IDE.Sublime
             SettingsButton(ProjectGenerationFlag.BuiltIn, "Built-in packages", "");
             SettingsButton(ProjectGenerationFlag.LocalTarBall, "Local tarball", "");
             SettingsButton(ProjectGenerationFlag.Unknown, "Packages from unknown sources", "");
-            SettingsButton(ProjectGenerationFlag.PlayerAssemblies, "Player projects", "For each player project generate an additional csproj with the name 'project-player.csproj'");
+            SettingsButton(ProjectGenerationFlag.PlayerAssemblies, "Player projects", "Generate the solution with the Player defines instead of the Editor ones");
             RegenerateProjectFiles();
             EditorGUI.indentLevel--;
         }
