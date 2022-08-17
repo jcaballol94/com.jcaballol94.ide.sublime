@@ -22,21 +22,28 @@ namespace jCaballol94.IDE.Sublime
 
         public static CodeEditor.Installation[] GetSublimeTextInstallations()
 		{
+            // If we have found it previously, try to reuse that path
             if (TryGetCurrentInstallation(out var installations))
                 return installations;
 
-            var allDirectories = Directory.EnumerateDirectories(GetProgramFiles());
-            foreach (var directory in allDirectories)
+            // Try the most common path first
+            var programFiles = GetProgramFiles();
+            var potentialPath = Path.Combine(programFiles, SUBLIME_FOLDER, SUBLIME_APP);
+            if (!File.Exists(potentialPath))
             {
-                if (directory.EndsWith(SUBLIME_FOLDER))
+                var allDirectories = Directory.EnumerateDirectories(GetProgramFiles());
+                foreach (var directory in allDirectories)
                 {
-                    var potentialPath = Path.Combine(directory, SUBLIME_APP);
+                    potentialPath = Path.Combine(directory, SUBLIME_APP);
                     if (File.Exists(potentialPath))
-                    {
-                        EditorPrefs.SetString(SUBLIME_PATH_KEY, potentialPath);
-                        return new CodeEditor.Installation[] { CreateInstallation(potentialPath) };
-                    }
+                        break;
                 }
+            }
+
+            if (File.Exists(potentialPath))
+            {
+                EditorPrefs.SetString(SUBLIME_PATH_KEY, potentialPath);
+                return new CodeEditor.Installation[] { CreateInstallation(potentialPath) };
             }
 
             return Array.Empty<CodeEditor.Installation>();
@@ -65,7 +72,7 @@ namespace jCaballol94.IDE.Sublime
 
         public static bool IsValidPath(string path)
         {
-            return path.EndsWith(Path.Combine(SUBLIME_FOLDER, SUBLIME_APP)) && File.Exists(path);
+            return (path.EndsWith(SUBLIME_APP) && File.Exists(path));
         }
     }
 }
