@@ -34,8 +34,34 @@ namespace jCaballol94.IDE.Sublime
 
         public IEnumerable<Assembly> GetAssemblies(Func<string, bool> shouldFileBePartOfSolution)
         {
-            return CompilationPipeline.GetAssemblies()
-                .Where(i => 0 < i.sourceFiles.Length && i.sourceFiles.Any(shouldFileBePartOfSolution));
+            var assemblyType = ProjectGenerationFlag.HasFlag(ProjectGenerationFlag.PlayerAssemblies) ?
+                AssembliesType.Player :
+                AssembliesType.Editor;
+                
+            return GetAssembliesByType(assemblyType, shouldFileBePartOfSolution, @"Temp\Bin\Debug\");
+        }
+
+        private static IEnumerable<Assembly> GetAssembliesByType(AssembliesType type, Func<string, bool> shouldFileBePartOfSolution, string outputPath)
+        {
+            foreach (var assembly in CompilationPipeline.GetAssemblies(type))
+            {
+                if (assembly.sourceFiles.Any(shouldFileBePartOfSolution))
+                {
+                    yield return new Assembly(
+                        assembly.name,
+                        outputPath,
+                        assembly.sourceFiles,
+                        assembly.defines,
+                        assembly.assemblyReferences,
+                        assembly.compiledAssemblyReferences,
+                        assembly.flags,
+                        assembly.compilerOptions
+#if UNITY_2020_2_OR_NEWER
+                        , assembly.rootNamespace
+#endif
+                    );
+                }
+            }
         }
 
         public IEnumerable<string> GetAllAssetPaths()
