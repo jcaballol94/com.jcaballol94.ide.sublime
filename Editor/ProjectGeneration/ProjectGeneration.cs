@@ -487,7 +487,7 @@ namespace jCaballol94.IDE.Sublime
                 builder,
                 ProjectGuid(assembly.name),
                 assembly.name,
-                string.Join(";", new[] { "DEBUG", "TRACE" }.Concat(assembly.defines).Concat(responseFilesData.SelectMany(x => x.Defines)).Concat(EditorUserBuildSettings.activeScriptCompilationDefines).Distinct().ToArray()),
+                string.Join(";", new[] { "DEBUG", "TRACE" }.Concat(assembly.defines).Concat(responseFilesData.SelectMany(x => x.Defines)).Distinct().ToArray()),
                 GenerateLangVersion(otherArguments["langversion"], assembly),
                 assembly.compilerOptions.AllowUnsafeCode | responseFilesData.Any(x => x.Unsafe),
                 GenerateAnalyserItemGroup(RetrieveRoslynAnalyzers(assembly, otherArguments)),
