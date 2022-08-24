@@ -68,7 +68,9 @@ namespace jCaballol94.IDE.Sublime
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = m_installationPath,
-                    Arguments = $"--project {GetOrGenerateSolutionFile()} {filePath}:{line}:{column}",
+                    Arguments = string.IsNullOrEmpty(filePath) ?
+                    $"--project {GetOrGenerateSolutionFile()}" :
+                     $"--project {GetOrGenerateSolutionFile()} {filePath}:{line}:{column}",
                 }
             };
             process.Start();
