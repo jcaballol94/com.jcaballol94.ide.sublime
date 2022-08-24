@@ -1,8 +1,8 @@
 using Unity.CodeEditor;
 using UnityEditor;
 using UnityEngine;
-using System.Linq;
 using System.Diagnostics;
+using System.Linq;
 
 namespace jCaballol94.IDE.Sublime
 {
@@ -10,22 +10,23 @@ namespace jCaballol94.IDE.Sublime
     public class SublimeTextEditor : IExternalCodeEditor
     {
         private string m_installationPath;
+        private readonly ProjectGeneratorBase m_generator = new CombinedProjectGenerator();
+
         public CodeEditor.Installation[] Installations => Discovery.GetSublimeTextInstallations();
-
-        private readonly ProjectGeneration _generator = new ProjectGeneration();
-
-        static SublimeTextEditor()
-        {
-            CodeEditor.Register(new SublimeTextEditor());
-        }
 
         public void Initialize(string editorInstallationPath)
         {
             m_installationPath = editorInstallationPath;
         }
 
+        static SublimeTextEditor()
+        {
+            CodeEditor.Register(new SublimeTextEditor());
+        }
+
         public void OnGUI()
         {
+            // Show the package info, like the VS package does
             GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
 
@@ -40,37 +41,23 @@ namespace jCaballol94.IDE.Sublime
             GUILayout.Label($"<size=10><color=grey>{package.displayName} v{package.version} enabled</color></size>", style);
             GUILayout.EndHorizontal();
 
+            // Show the actual settings
             EditorGUILayout.LabelField("Generate .csproj files for:");
             EditorGUI.indentLevel++;
-            SettingsButton(ProjectGenerationFlag.Embedded, "Embedded packages", "");
-            SettingsButton(ProjectGenerationFlag.Local, "Local packages", "");
-            SettingsButton(ProjectGenerationFlag.Registry, "Registry packages", "");
-            SettingsButton(ProjectGenerationFlag.Git, "Git packages", "");
-            SettingsButton(ProjectGenerationFlag.BuiltIn, "Built-in packages", "");
-            SettingsButton(ProjectGenerationFlag.LocalTarBall, "Local tarball", "");
-            SettingsButton(ProjectGenerationFlag.Unknown, "Packages from unknown sources", "");
-            SettingsButton(ProjectGenerationFlag.PlayerAssemblies, "Player projects", "Generate the solution with the Player defines instead of the Editor ones");
+            // Show the settings for the generator
+            m_generator.OnGUI();
+            // Show a button to sync all the projects
             RegenerateProjectFiles();
             EditorGUI.indentLevel--;
         }
 
-        void RegenerateProjectFiles()
+        private void RegenerateProjectFiles()
         {
             var rect = EditorGUI.IndentedRect(EditorGUILayout.GetControlRect(new GUILayoutOption[] { }));
             rect.width = 252;
             if (GUI.Button(rect, "Regenerate project files"))
             {
-                _generator.Sync();
-            }
-        }
-
-        void SettingsButton(ProjectGenerationFlag preference, string guiMessage, string toolTip)
-        {
-            var prevValue = _generator.AssemblyNameProvider.ProjectGenerationFlag.HasFlag(preference);
-            var newValue = EditorGUILayout.Toggle(new GUIContent(guiMessage, toolTip), prevValue);
-            if (newValue != prevValue)
-            {
-                _generator.AssemblyNameProvider.ToggleProjectGeneration(preference);
+                m_generator.Sync();
             }
         }
 
@@ -91,19 +78,19 @@ namespace jCaballol94.IDE.Sublime
 
         private string GetOrGenerateSolutionFile()
         {
-            _generator.Sync();
-            return _generator.Projectname + ".sublime-project";
+            m_generator.Sync();
+            return m_generator.SolutionPath;
         }
 
         public void SyncAll()
         {
             AssetDatabase.Refresh();
-            _generator.Sync();
+            m_generator.Sync();
         }
 
         public void SyncIfNeeded(string[] addedFiles, string[] deletedFiles, string[] movedFiles, string[] movedFromFiles, string[] importedFiles)
         {
-            _generator.SyncIfNeeded(addedFiles.Union(deletedFiles).Union(movedFiles).Union(movedFromFiles).ToArray(), importedFiles);
+            m_generator.SyncIfNeeded(addedFiles.Union(deletedFiles).Union(movedFiles).Union(movedFromFiles).ToArray(), importedFiles);
         }
 
         public bool TryGetInstallationForPath(string editorPath, out CodeEditor.Installation installation)
