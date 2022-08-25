@@ -7,6 +7,7 @@ namespace jCaballol94.IDE.Sublime
         private SolutionGenerator m_solutionGen;
 
         public override string SolutionPath => m_sublimeGen.SolutionPath;
+        public bool OmniSharpSupport => m_settings.SupportOmniSharp;
 
         public CombinedProjectGenerator() : base()
         {
