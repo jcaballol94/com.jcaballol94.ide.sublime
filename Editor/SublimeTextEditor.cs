@@ -9,14 +9,12 @@ namespace jCaballol94.IDE.Sublime
     [InitializeOnLoad]
     public class SublimeTextEditor : IExternalCodeEditor
     {
-        private string m_installationPath;
         private readonly CombinedProjectGenerator m_generator = new CombinedProjectGenerator();
 
         public CodeEditor.Installation[] Installations => Discovery.GetSublimeTextInstallations();
 
         public void Initialize(string editorInstallationPath)
         {
-            m_installationPath = editorInstallationPath;
         }
 
         static SublimeTextEditor()
@@ -66,11 +64,13 @@ namespace jCaballol94.IDE.Sublime
 
         public bool OpenProject(string filePath = "", int line = -1, int column = -1)
         {
+            CheckCurrentEditorInstallation();
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
-                    FileName = m_installationPath,
+                    FileName = CodeEditor.CurrentEditorInstallation,
                     Arguments = string.IsNullOrEmpty(filePath) ?
                     $"--project {GetOrGenerateSolutionFile()}" :
                      $"--project {GetOrGenerateSolutionFile()} {filePath}:{line}:{column}",
@@ -79,6 +79,21 @@ namespace jCaballol94.IDE.Sublime
             process.Start();
 
             return true;
+        }
+
+        private static void CheckCurrentEditorInstallation()
+        {
+            var editorPath = CodeEditor.CurrentEditorInstallation;
+            try
+            {
+                if (Discovery.IsValidPath(editorPath))
+                    return;
+            }
+            catch (System.IO.IOException)
+            {
+            }
+
+            UnityEngine.Debug.LogWarning($"Sublime Text executable {editorPath} is not found. Please change your settings in Edit > Preferences > External Tools.");
         }
 
         private string GetOrGenerateSolutionFile()
