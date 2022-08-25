@@ -14,9 +14,11 @@ namespace jCaballol94.IDE.Sublime
         private readonly Dictionary<string, UnityEditor.PackageManager.PackageInfo> m_packageInfoCache = new Dictionary<string, UnityEditor.PackageManager.PackageInfo>();
 
         public string[] ProjectSupportedExtensions => EditorSettings.projectGenerationUserExtensions;
+        public bool SupportOmniSharp => m_projectGenerationFlag.HasFlag(ProjectGenerationFlag.OmniSharp);
 
         public void OnGUI()
         {
+            SettingsButton(ProjectGenerationFlag.OmniSharp, "OmniSharp support", "Generate sln and csproj for OmniSharp");
             SettingsButton(ProjectGenerationFlag.Embedded, "Embedded packages", "");
             SettingsButton(ProjectGenerationFlag.Local, "Local packages", "");
             SettingsButton(ProjectGenerationFlag.Registry, "Registry packages", "");
@@ -24,7 +26,9 @@ namespace jCaballol94.IDE.Sublime
             SettingsButton(ProjectGenerationFlag.BuiltIn, "Built-in packages", "");
             SettingsButton(ProjectGenerationFlag.LocalTarBall, "Local tarball", "");
             SettingsButton(ProjectGenerationFlag.Unknown, "Packages from unknown sources", "");
+            EditorGUI.BeginDisabledGroup(!SupportOmniSharp);
             SettingsButton(ProjectGenerationFlag.PlayerAssemblies, "Player projects", "Generate the solution with the Player defines instead of the Editor ones");
+            EditorGUI.EndDisabledGroup();
         }
 
         private void SettingsButton(ProjectGenerationFlag preference, string guiMessage, string toolTip)
