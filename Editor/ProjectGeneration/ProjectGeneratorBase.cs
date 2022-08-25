@@ -31,9 +31,6 @@ namespace jCaballol94.IDE.Sublime
             if (settings == null) throw new System.ArgumentNullException("settings");
             m_settings = settings;
             m_tempFolder = tempFolder;
-
-            if (!Directory.Exists(tempFolder))
-                Directory.CreateDirectory(tempFolder);
         }
 
         public void OnGUI()
@@ -60,6 +57,8 @@ namespace jCaballol94.IDE.Sublime
                 Debug.LogException(exception);
             }
 
+            if (!Directory.Exists(m_tempFolder))
+                Directory.CreateDirectory(m_tempFolder);
             File.WriteAllText(filename, newContents);
         }
 
