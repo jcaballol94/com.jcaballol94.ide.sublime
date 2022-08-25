@@ -2,7 +2,7 @@
   "displayName": "Sublime Text Editor",
   "name": "com.jcaballol94.ide.sublime",
   "version": "0.0.1",
-  "unity": "2020.3",
+  "unity": "2019.4",
   "description": "Unoficial package to add support for Sublime Text as an IDE.",
   "keywords": [
     "ide",
