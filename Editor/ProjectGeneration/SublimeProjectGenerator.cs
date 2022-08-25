@@ -11,6 +11,7 @@ namespace jCaballol94.IDE.Sublime
         public override string SolutionPath => Path.Combine(m_projectDirectory, $"{ProjectName}.sublime-project");
         public string omniSharpSolution;
 
+        [System.NonSerialized] private IEnumerable<UnityEditor.PackageManager.PackageInfo> m_allPackages = null;
         public SublimeProjectGenerator(ProjectGeneratorSettings settings, string tempFolder) : base(settings, tempFolder)
         {
             m_projectDirectory = m_tempFolder.NormalizePath();
@@ -18,8 +19,19 @@ namespace jCaballol94.IDE.Sublime
 
         public override void Sync()
         {
-            var packages = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p => !m_settings.IsInternalizedPackage(p));
-            SyncFileIfNotChanged(SolutionPath, SublimeText(packages));
+            if (m_allPackages == null)
+            {
+#if UNITY_2021_1_OR_NEWER
+                m_allPackages = UnityEditor.PackageManager.PackageInfo.GetAllRegisteredPackages().Where(p => !m_settings.IsInternalizedPackage(p));
+#else
+                // Get the packages the slow old way...
+                var request = UnityEditor.PackageManager.Client.List();
+                while (!request.IsCompleted) ;
+                m_allPackages = request.Result.Where(p => !m_settings.IsInternalizedPackage(p));
+#endif
+            }
+
+            SyncFileIfNotChanged(SolutionPath, SublimeText(m_allPackages));
         }
         public override void SyncIfNeeded(string[] affectedFiles, string[] reimportedFiles)
         {
