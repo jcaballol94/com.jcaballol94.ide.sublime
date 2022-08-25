@@ -42,7 +42,7 @@ namespace jCaballol94.IDE.Sublime
             GUILayout.EndHorizontal();
 
             // Show the actual settings
-            EditorGUILayout.LabelField("Generate .csproj files for:");
+            EditorGUILayout.LabelField("Include in the generated project:");
             EditorGUI.indentLevel++;
             // Show the settings for the generator
             m_generator.OnGUI();
