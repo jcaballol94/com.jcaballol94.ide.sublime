@@ -10,7 +10,7 @@ namespace jCaballol94.IDE.Sublime
     public class SublimeTextEditor : IExternalCodeEditor
     {
         private string m_installationPath;
-        private readonly ProjectGeneratorBase m_generator = new CombinedProjectGenerator();
+        private readonly CombinedProjectGenerator m_generator = new CombinedProjectGenerator();
 
         public CodeEditor.Installation[] Installations => Discovery.GetSublimeTextInstallations();
 
@@ -49,6 +49,9 @@ namespace jCaballol94.IDE.Sublime
             // Show a button to sync all the projects
             RegenerateProjectFiles();
             EditorGUI.indentLevel--;
+
+            if (m_generator.OmniSharpSupport)
+                EditorGUILayout.HelpBox("OmniSharp support is compatible with the OmniSharp sublime package and with my fork of the LSP-OmniSharp sublime package.\nYou can find the fork at https://github.com/jcaballol94/LSP-OmniSharp", MessageType.Info);
         }
 
         private void RegenerateProjectFiles()
