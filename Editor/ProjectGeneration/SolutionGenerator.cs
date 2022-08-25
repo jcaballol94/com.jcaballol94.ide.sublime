@@ -432,7 +432,7 @@ namespace jCaballol94.IDE.Sublime
 #if UNITY_2020_2_OR_NEWER
             return assembly.compilerOptions.LanguageVersion;
 #else
-            return k_TargetLanguageVersion;
+            return "latest";
 #endif
         }
 
