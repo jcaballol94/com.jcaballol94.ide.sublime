@@ -28,7 +28,14 @@ namespace jCaballol94.IDE.Sublime
 
         private string SublimeText(IEnumerable<UnityEditor.PackageManager.PackageInfo> packages)
         {
-            return string.Format(GetSublimeText(), GetFolderEntries(packages), omniSharpSolution.Replace('\\', '/'));
+            var text = string.Format(GetSublimeText(), GetFolderEntries(packages));
+            if (!string.IsNullOrEmpty(omniSharpSolution))
+            {
+                text += ",\n\t\"solution_file\": \"" + omniSharpSolution.Replace('\\', '/') + "\"";
+            }
+            text += "\n}";
+
+            return text;
         }
 
         static string GetSublimeText()
@@ -40,9 +47,7 @@ namespace jCaballol94.IDE.Sublime
                 @"        {{ ""path"": ""../../Assets"", ""file_exclude_patterns"": [""*.meta""] }},",
                 @"        {{ ""path"": ""../../Packages"", ""name"": ""Package Manifest"", ""file_exclude_patterns"": [""packages-lock.json""], ""folder_exclude_patterns"": [""*""] }},",
                 @"{0}",
-                @"    ],",
-                @"    ""solution_file"": ""{1}""",
-                @"}}").Replace("    ", "\t");
+                @"    ]").Replace("    ", "\t");
         }
 
         string GetFolderEntries(IEnumerable<UnityEditor.PackageManager.PackageInfo> packages)

@@ -17,15 +17,27 @@ namespace jCaballol94.IDE.Sublime
 
         public override void Sync()
         {
-            m_solutionGen.Sync();
-            m_sublimeGen.omniSharpSolution = m_solutionGen.SolutionPath;
+            if (m_settings.SupportOmniSharp)
+            {
+                m_solutionGen.Sync();
+                m_sublimeGen.omniSharpSolution = m_solutionGen.SolutionPath;
+            }
+            else
+                m_sublimeGen.omniSharpSolution = null;
+
             m_sublimeGen.Sync();
         }
 
         public override void SyncIfNeeded(string[] affectedFiles, string[] importedFiles)
         {
-            m_solutionGen.SyncIfNeeded(affectedFiles, importedFiles);
-            m_sublimeGen.omniSharpSolution = m_solutionGen.SolutionPath;
+            if (m_settings.SupportOmniSharp)
+            {
+                m_solutionGen.SyncIfNeeded(affectedFiles, importedFiles);
+                m_sublimeGen.omniSharpSolution = m_solutionGen.SolutionPath;
+            }
+            else
+                m_sublimeGen.omniSharpSolution = null;
+                
             m_sublimeGen.SyncIfNeeded(affectedFiles, importedFiles);
         }
     }
