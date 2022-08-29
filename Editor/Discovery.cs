@@ -8,15 +8,12 @@ namespace jCaballol94.IDE.Sublime
     internal static class Discovery
     {
         private const string SUBLIME_PATH_KEY = "sublime_path";
-        private const string SUBLIME_DEFAULT_FOLDER = "Sublime Text";
-        private const string SUBLIME_APP = "sublime_text.exe";
+        private const string SUBLIME_DEFAULT_FOLDER_WINDOWS = "Sublime Text";
+        private const string SUBLIME_APP_WINDOWS = "sublime_text.exe";
+        private const string SUBLIME_COMMAND = "subl";
 
         private static string ProgramFiles =>
-#if UNITY_EDITOR_WIN
                     Environment.GetEnvironmentVariable("ProgramFiles");
-#elif UNITY_EDITOR_OSX
-                    "/Applications";
-#endif
 
         public static CodeEditor.Installation[] GetSublimeTextInstallations()
         {
@@ -24,14 +21,29 @@ namespace jCaballol94.IDE.Sublime
             if (TryGetCurrentInstallation(out var installations))
                 return installations;
 
-            bool found = false;
+#if UNITY_EDITOR_WIN
+            if (FindInstallationWindows(out var path))
+#else
+            if (FindInstallationOther(out var path))
+#endif
+            {
+                EditorPrefs.SetString(SUBLIME_PATH_KEY, path);
+                return new CodeEditor.Installation[] { CreateInstallation(path) };
+            }
+
+            return Array.Empty<CodeEditor.Installation>();
+        }
+
+        private static bool FindInstallationWindows(out string path)
+        {
             var programFiles = ProgramFiles;
 
             // Try the most common path first
-            var potentialPath = Path.Combine(programFiles, SUBLIME_DEFAULT_FOLDER, SUBLIME_APP);
+            var potentialPath = Path.Combine(programFiles, SUBLIME_DEFAULT_FOLDER_WINDOWS, SUBLIME_APP_WINDOWS);
             if (IsValidPath(potentialPath))
             {
-                found = true;
+                path = potentialPath;
+                return true;
             }
             else
             {
@@ -39,22 +51,39 @@ namespace jCaballol94.IDE.Sublime
                 var allDirectories = Directory.EnumerateDirectories(programFiles);
                 foreach (var directory in allDirectories)
                 {
-                    potentialPath = Path.Combine(directory, SUBLIME_APP);
+                    potentialPath = Path.Combine(directory, SUBLIME_APP_WINDOWS);
                     if (IsValidPath(potentialPath))
                     {
-                        found = true;
-                        break;
+                        path = potentialPath;
+                        return true;
                     }
                 }
             }
+            path = null;
+            return false;
+        }
 
-            if (found)
+        private static bool FindInstallationOther(out string path)
+        {
+            if (File.Exists(SUBLIME_COMMAND))
             {
-                EditorPrefs.SetString(SUBLIME_PATH_KEY, potentialPath);
-                return new CodeEditor.Installation[] { CreateInstallation(potentialPath) };
+                path = Path.GetFullPath(SUBLIME_COMMAND);
+                return true;
             }
 
-            return Array.Empty<CodeEditor.Installation>();
+            var values = Environment.GetEnvironmentVariable("PATH");
+            foreach (var pathEntry in values.Split(Path.PathSeparator))
+            {
+                var fullPath = Path.Combine(pathEntry, SUBLIME_COMMAND);
+                if (File.Exists(fullPath))
+                {
+                    path = fullPath;
+                    return true;
+                }
+            }
+
+            path = null;
+            return false;
         }
 
         private static bool TryGetCurrentInstallation(out CodeEditor.Installation[] installations)
@@ -80,7 +109,11 @@ namespace jCaballol94.IDE.Sublime
 
         public static bool IsValidPath(string path)
         {
-            return (path != null && path.EndsWith(SUBLIME_APP) && File.Exists(path));
+#if UNITY_EDITOR_WIN
+            return (path != null && path.EndsWith(SUBLIME_APP_WINDOWS) && File.Exists(path));
+#else
+            return ((path == SUBLIME_COMMAND || path.EndsWith(SUBLIME_COMMAND)) && File.Exists(path));
+#endif
         }
     }
 }
