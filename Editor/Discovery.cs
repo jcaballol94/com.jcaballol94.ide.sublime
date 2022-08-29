@@ -11,6 +11,7 @@ namespace jCaballol94.IDE.Sublime
         private const string SUBLIME_DEFAULT_FOLDER_WINDOWS = "Sublime Text";
         private const string SUBLIME_APP_WINDOWS = "sublime_text.exe";
         private const string SUBLIME_COMMAND = "subl";
+        private const string SUBLIME_DEFAULT_PATH_MAC = "/Applications/Sublime Text.app/Contents/SharedSupport/bin/subl";
 
         private static string ProgramFiles =>
                     Environment.GetEnvironmentVariable("ProgramFiles");
@@ -23,6 +24,8 @@ namespace jCaballol94.IDE.Sublime
 
 #if UNITY_EDITOR_WIN
             if (FindInstallationWindows(out var path))
+#elif UNITY_EDITOR_OSX
+            if (FindInstallationMacOS(out var path))
 #else
             if (FindInstallationOther(out var path))
 #endif
@@ -61,6 +64,17 @@ namespace jCaballol94.IDE.Sublime
             }
             path = null;
             return false;
+        }
+
+        private static bool FindInstallationMacOS(out string path)
+        {
+            if (File.Exists(SUBLIME_DEFAULT_PATH_MAC))
+            {
+                UnityEngine.Debug.Log("Found in Mac's path!");
+                path = SUBLIME_DEFAULT_PATH_MAC;
+                return true;
+            }
+            return FindInstallationOther(out path);
         }
 
         private static bool FindInstallationOther(out string path)
