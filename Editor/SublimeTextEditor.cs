@@ -77,8 +77,8 @@ namespace jCaballol94.IDE.Sublime
                 {
                     FileName = CodeEditor.CurrentEditorInstallation,
                     Arguments = string.IsNullOrEmpty(filePath) ?
-                    $"--project '{GetOrGenerateSolutionFile()}'" :
-                     $"--project '{GetOrGenerateSolutionFile()}' '{filePath}':{line}:{column}",
+                    $"--project \"{GetOrGenerateSolutionFile()}\"" :
+                     $"--project \"{GetOrGenerateSolutionFile()}\" \"{filePath}\":{line}:{column}",
                 }
             };
             process.Start();
