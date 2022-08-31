@@ -66,14 +66,19 @@ namespace jCaballol94.IDE.Sublime
         {
             CheckCurrentEditorInstallation();
 
+            if (!string.IsNullOrWhiteSpace(filePath))
+            {
+                filePath = System.IO.Path.GetFullPath(filePath);
+            }
+
             var process = new Process
             {
                 StartInfo = new ProcessStartInfo
                 {
                     FileName = CodeEditor.CurrentEditorInstallation,
                     Arguments = string.IsNullOrEmpty(filePath) ?
-                    $"--project {GetOrGenerateSolutionFile()}" :
-                     $"--project {GetOrGenerateSolutionFile()} {filePath}:{line}:{column}",
+                    $"--project '{GetOrGenerateSolutionFile()}'" :
+                     $"--project '{GetOrGenerateSolutionFile()}' '{filePath}':{line}:{column}",
                 }
             };
             process.Start();
