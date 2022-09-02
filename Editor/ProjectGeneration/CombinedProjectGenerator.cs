@@ -40,5 +40,10 @@ namespace jCaballol94.IDE.Sublime
                 
             m_sublimeGen.SyncIfNeeded(affectedFiles, importedFiles);
         }
+
+        public override bool IsSupportedExtension(string extension)
+        {
+            return m_solutionGen.IsSupportedExtension(extension);
+        }
     }
 }

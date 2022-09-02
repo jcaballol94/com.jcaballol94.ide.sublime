@@ -62,8 +62,23 @@ namespace jCaballol94.IDE.Sublime
             }
         }
 
+        private bool IsSupportedPath(string path)
+        {
+            // Path is empty with "Open C# Project", as we only want to open the solution without specific files
+            if (string.IsNullOrEmpty(path))
+                return true;
+
+            if (m_generator.IsSupportedExtension(System.IO.Path.GetExtension(path)))
+                return true;
+
+            return false;
+        }
+
         public bool OpenProject(string filePath = "", int line = -1, int column = -1)
         {
+            if (!IsSupportedPath(filePath))
+                return false;
+
             CheckCurrentEditorInstallation();
 
             if (!string.IsNullOrWhiteSpace(filePath))
