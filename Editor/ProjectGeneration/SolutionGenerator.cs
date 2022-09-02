@@ -189,7 +189,7 @@ namespace jCaballol94.IDE.Sublime
             return IsSupportedExtension(extension);
         }
 
-        private bool IsSupportedExtension(string extension)
+        public override bool IsSupportedExtension(string extension)
         {
             extension = extension.TrimStart('.');
             if (s_builtinSupportedExtensions.ContainsKey(extension))

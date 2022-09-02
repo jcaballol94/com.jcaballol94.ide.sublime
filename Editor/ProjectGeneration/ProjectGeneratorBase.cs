@@ -43,6 +43,11 @@ namespace jCaballol94.IDE.Sublime
 
         public abstract void SyncIfNeeded(string[] affectedFiles, string[] importedFiles);
 
+        public virtual bool IsSupportedExtension(string extension)
+        {
+            return false;
+        }
+
         protected void SyncFileIfNotChanged(string filename, string newContents)
         {
             try
