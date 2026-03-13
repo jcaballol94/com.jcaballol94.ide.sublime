@@ -74,7 +74,7 @@ namespace jCaballol94.IDE.Sublime
             return false;
         }
 
-        public bool OpenProject(string filePath = "", int line = -1, int column = -1)
+        public bool OpenProject(string filePath = "", int line = 0, int column = 0)
         {
             if (!IsSupportedPath(filePath))
                 return false;
@@ -85,6 +85,9 @@ namespace jCaballol94.IDE.Sublime
             {
                 filePath = System.IO.Path.GetFullPath(filePath);
             }
+
+            line = Mathf.Max(0, line);
+            column = Mathf.Max(0, column);
 
             var process = new Process
             {
